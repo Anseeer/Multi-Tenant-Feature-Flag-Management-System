@@ -6,6 +6,6 @@ const router = express.Router();
 const authService = new AuthServices();
 const authController = new AuthController(authService);
 
-router.post('/super-admin-login',authController.SuperAdminLogin);
+router.post('/super-admin-login', authController.SuperAdminLogin);
 
 export default router;

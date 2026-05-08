@@ -12,7 +12,6 @@ export class AuthController implements IAuthController {
 
     SuperAdminLogin = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            console.log("Body:",req.body)
             const { email, password } = req.body;
             if (!email || !password) {
                 throw new Error("Credentials Not Found");
@@ -24,7 +23,8 @@ export class AuthController implements IAuthController {
                 httpOnly: true,
                 sameSite: "strict",
                 secure: process.env.NODE_ENV === "production",
-                maxAge: 1 * 24 * 60 * 60 * 1000,
+                maxAge: 15 * 60 * 1000,
+                path: "/",
             })
 
             res.cookie('refresh_token', refresh_token, {
@@ -32,13 +32,14 @@ export class AuthController implements IAuthController {
                 sameSite: "strict",
                 secure: process.env.NODE_ENV === "production",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
+                path: "/",
             })
 
             res.status(StatusCode.OK).json(response)
 
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : String(error);
-            next(new ErrorResponse(StatusCode.INTERNAL_SERVER_ERROR, "Faild to Login Super Admin", errMsg))
+            next(new ErrorResponse(StatusCode.INTERNAL_SERVER_ERROR, errMsg, "Faild to Login Super Admin"))
         }
     }
 
