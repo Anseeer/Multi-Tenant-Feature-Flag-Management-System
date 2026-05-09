@@ -1,14 +1,20 @@
 import { useDispatch } from "react-redux";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { clearSuperAdmin } from "../slices/SuperAdminSlice";
+import { logout } from "../api/auth.service";
 
 function SuperAdminLayout() {
     const navigate = useNavigate();
     const dispatch = useDispatch()
 
-    const handleLogout = () => {
-        dispatch(clearSuperAdmin());
-        navigate("/super-admin/login");
+    const handleLogout = async () => {
+        try {
+            await logout()
+            dispatch(clearSuperAdmin());
+            navigate("/super-admin/login");
+        } catch (error) {
+            console.log(error)
+        }
     };
 
     return (

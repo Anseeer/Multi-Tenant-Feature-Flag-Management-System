@@ -1,7 +1,11 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import type { IUser } from "./Iuser.js";
+import { ROLE } from "../../constants/role.js";
 
 const userSchema = new mongoose.Schema<IUser>({
+    name:{
+        typ:String,
+    },
     email: {
         type: String,
         required: true,
@@ -13,12 +17,8 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
-    },
-    isSuperAdmin: {
-        type: Boolean,
-        default: false
+        enum: [ROLE.USER,ROLE.ADMIN],
+        default: ROLE.USER
     },
     orgId: {
         type: mongoose.Schema.ObjectId,

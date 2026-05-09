@@ -5,6 +5,8 @@ import { DBconection } from './configs/db.js';
 import { ErrorMiddleware } from './middlewares/error.middleware.js';
 import authRoute from "./routes/auth.route.js"
 import orgRoute from "./routes/organaisation.route.js"
+import featRoute from "./routes/feature.route.js"
+import userRoute from "./routes/user.route.js"
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -30,7 +32,8 @@ app.get('/test', (req: Request, res: Response) => {
 
 app.use('/api/auth', authRoute);
 app.use('/api/organaisation', orgRoute);
-
+app.use('/api/feature', featRoute);
+app.use('/api/user', userRoute);
 
 app.use(ErrorMiddleware)
 

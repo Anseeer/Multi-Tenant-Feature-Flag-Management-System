@@ -1,10 +1,12 @@
+import type { Document } from "mongoose";
+import type { ROLE } from "../../constants/role.js";
 
-export interface IUser {
+export interface IUser extends Document {
     id: string,
+    name: string,
     email: string,
     password: string,
-    isSuperAdmin: boolean,
-    role: "user" | "admin",
+    role: ROLE.USER | ROLE.ADMIN,
     orgId?: string,
     createdAt: Date,
     updatedAt: Date

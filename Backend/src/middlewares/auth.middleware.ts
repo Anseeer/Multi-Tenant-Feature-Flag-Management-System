@@ -17,6 +17,7 @@ export const auth = async (
 
         if (accessToken) {
             try {
+
                 const decoded = jwt.verify(
                     accessToken,
                     process.env.JWT_ACCESS_TOKEN_SECRET as string
@@ -70,6 +71,7 @@ export const auth = async (
             });
         }
     } catch (error) {
+
         return res.status(500).json({
             success: false,
             message: "Authentication failed",
