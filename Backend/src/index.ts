@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: process.env.CLIENT_URL,
         credentials: true,
     })
 );
@@ -38,5 +38,5 @@ app.use('/api/user', userRoute);
 app.use(ErrorMiddleware)
 
 app.listen(PORT, () => {
-    console.log(`Server is listening on http://localhost:3003/test`)
+    console.log(`Server is listening on ${process.env.CLIENT_URL}/test`)
 })

@@ -1,10 +1,8 @@
 import { ROLE } from "../../constants/role.js";
-import { StatusCode } from "../../constants/status.code.js";
 import type { IUser } from "../../models/user/Iuser.js";
 import type { IUserRepository } from "../../repositories/user/Iuser.repo.js";
 import { ComparePassword, HashPassword } from "../../utilities/bcrypt.js";
 import { mapUserResponse, type IUserResponse } from "../../utilities/DTO.mapping.js";
-import { SuccessResponse } from "../../utilities/response.js";
 import { generate_Access_Token, generate_Refresh_Token } from "../../utilities/token.generate.js";
 import type { IAuthService } from "./Iauth.service.js";
 
