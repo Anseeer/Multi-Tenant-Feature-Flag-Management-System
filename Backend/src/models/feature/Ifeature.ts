@@ -1,10 +1,10 @@
-import type { Document, ObjectId } from "mongoose";
+import type { Document, Types } from "mongoose";
 
 export interface IFeature extends Document {
     id: string,
     name: string,
     isEnable: boolean,
-    orgId: ObjectId,
+    orgId: Types.ObjectId;
     createdAt: Date,
     updatedAt: Date,
 }

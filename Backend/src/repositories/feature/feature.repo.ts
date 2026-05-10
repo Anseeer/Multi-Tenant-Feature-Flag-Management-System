@@ -86,7 +86,7 @@ export class FeatureRepository extends BaseRepository<IFeature> implements IFeat
 
     async findByOrgId(orgId: string): Promise<IFeature[]> {
         try {
-            return await this.model.find({ orgId: orgId.toString() });
+            return await this.model.find({ orgId: new mongoose.Types.ObjectId(orgId), });
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : String(error);
             throw new Error(errMsg);
