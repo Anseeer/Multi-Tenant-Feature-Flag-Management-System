@@ -15,5 +15,6 @@ router.delete('/:id', auth, authorize('admin'), featController.removeFeature);
 router.put('/', auth, authorize('admin'), featController.updateFeature);
 router.patch('/:id', auth, authorize('admin'), featController.toggleFeature);
 router.get('/', auth, authorize('admin'), featController.findAll);
+router.get('/orgId/:orgId', auth, authorize('admin', 'user'), featController.findByOrgId);
 
 export default router;

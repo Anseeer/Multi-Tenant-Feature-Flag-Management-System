@@ -32,4 +32,16 @@ export class OrganaisationService implements IOrganaisationService {
             throw new Error(errMsg);
         }
     }
+
+    async findByOrgId(orgId: string): Promise<IOrganaisation | null> {
+        try {
+            if (!orgId) {
+                throw new Error("userId not found");
+            }
+            return await this.organaisationRepo.findById(orgId) ?? null;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            throw new Error(errMsg);
+        }
+    }
 }

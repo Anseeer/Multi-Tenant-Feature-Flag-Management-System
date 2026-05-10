@@ -15,6 +15,7 @@ const superAdminSlice = createSlice({
     initialState,
     reducers: {
         setSuperAdmin: (state, action) => {
+            console.log("Action :",action)
             state.email = action.payload.email;
             state.isAuthenticated = true;
         },

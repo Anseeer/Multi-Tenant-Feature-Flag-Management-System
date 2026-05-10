@@ -3,11 +3,27 @@ import type { IAuthController } from "./Iauth.controller.js";
 import type { IAuthService } from "../../services/auth/Iauth.service.js";
 import { StatusCode } from "../../constants/status.code.js";
 import { ErrorResponse, SuccessResponse } from "../../utilities/response.js";
+import type { AuthRequest } from "../../middlewares/auth.middleware.js";
+import { ROLE } from "../../constants/role.js";
 
 export class AuthController implements IAuthController {
     private authService: IAuthService;
     constructor(AuthServie: IAuthService) {
         this.authService = AuthServie;
+    }
+
+    GetCurrentUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
+        try {
+            if (req.user.role == ROLE.SUPER_ADMIN) {
+                req.user.email = process.env.SUPER_ADMIN_EMAIL
+            }
+            const response = new SuccessResponse(StatusCode.OK, "Authenticated", req.user);
+            res.status(200).json(response);
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            console.log("Errr:", errMsg)
+            next(new ErrorResponse(StatusCode.INTERNAL_SERVER_ERROR, errMsg, StatusCode.FORBIDDEN))
+        }
     }
 
     SuperAdminLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -134,7 +150,7 @@ export class AuthController implements IAuthController {
             if (!email || !password) {
                 throw new Error("Data Not Found");
             }
-            const { access_token, refresh_token, user } = await this.authService.adminLogin(req.body);
+            const { access_token, refresh_token, user } = await this.authService.userLogin(req.body);
             const response = new SuccessResponse(StatusCode.OK, "User Login SuccessFully", user);
 
             res.cookie('access_token', access_token, {
@@ -162,7 +178,7 @@ export class AuthController implements IAuthController {
 
     Logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            res.clearCookie("accessToken", {
+            res.clearCookie("access_token", {
                 httpOnly: true,
                 secure: false,
                 sameSite: "lax",

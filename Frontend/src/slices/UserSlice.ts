@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-interface AdminState {
+interface UserState {
     id: string | null;
     name: string | null;
     email: string | null;
@@ -8,7 +8,7 @@ interface AdminState {
     isAuthenticated: boolean;
 }
 
-const initialState: AdminState = {
+const initialState: UserState = {
     id: null,
     name: null,
     email: null,
@@ -16,12 +16,11 @@ const initialState: AdminState = {
     isAuthenticated: false,
 };
 
-const adminSlice = createSlice({
-    name: "admin",
+const userSlice = createSlice({
+    name: "user",
     initialState,
     reducers: {
-        setAdmin: (state, action) => {
-            console.log("action :",action)
+        setUser: (state, action) => {
             state.id = action.payload.id;
             state.name = action.payload.name;
             state.email = action.payload.email;
@@ -29,7 +28,7 @@ const adminSlice = createSlice({
             state.isAuthenticated = true;
         },
 
-        clearAdmin: (state) => {
+        clearUser: (state) => {
             state.id = null;
             state.name = null;
             state.email = null;
@@ -40,8 +39,8 @@ const adminSlice = createSlice({
 });
 
 export const {
-    setAdmin,
-    clearAdmin,
-} = adminSlice.actions;
+    setUser,
+    clearUser,
+} = userSlice.actions;
 
-export default adminSlice.reducer;
+export default userSlice.reducer;

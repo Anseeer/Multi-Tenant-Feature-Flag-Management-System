@@ -15,8 +15,14 @@ export const createUser = async (payload: createPayload) => {
     return response.data;
 };
 
-export const fetchUsers = async (id: string) => {
-    const response = await axiosInstance.get(`user/organaisation-user/${id}`);
+export const fetchOrgUsers = async (orgId: string) => {
+    const response = await axiosInstance.get(`user/organaisation-user/${orgId}`);
 
     return response.data.data;
+}
+
+export const fetchUser = async (userId: string) => {
+    const response = await axiosInstance.get(`user/${userId}`);
+
+    return response.data;
 }

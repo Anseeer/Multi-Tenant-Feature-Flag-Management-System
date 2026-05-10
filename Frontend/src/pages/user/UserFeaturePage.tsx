@@ -1,134 +1,145 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
-import axiosInstance from "../../api/axios";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFeaturesByOrgId, fetchOrganaisationByOrgId } from "../../api/feature.service";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../api/auth.service";
+import { clearUser } from "../../slices/UserSlice";
+
+interface Feature {
+  _id: string;
+  name: string;
+  key: string;
+  isEnable: boolean;
+}
 
 function UserFeaturePage() {
-  const [featureKey, setFeatureKey] =
-    useState("");
+  const user = useSelector((state: any) => state.user);
+  console.log("User :", user)
 
-  const [loading, setLoading] =
-    useState(false);
+  const [features, setFeatures] = useState<Feature[]>([]);
+  const [search, setSearch] = useState("");
+  const [organization, setOrg] = useState("");
+  // const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  console.log("features :", features)
 
-  const [result, setResult] =
-    useState<null | boolean>(null);
-
-  const [message, setMessage] =
-    useState("");
-
-  const handleCheckFeature =
-    async () => {
+  useEffect(() => {
+    const fetchFeatures = async () => {
       try {
-        setLoading(true);
-
-        setResult(null);
-
-        setMessage("");
-
-        const response =
-          await axiosInstance.post(
-            "/user/check-feature",
-            {
-              featureKey,
-            }
-          );
-
-        setResult(
-          response.data.enabled
-        );
-
-        setMessage(
-          response.data.message
-        );
-      } catch (error: any) {
+        const response = await fetchFeaturesByOrgId(user.orgId.toString());
+        const data = await fetchOrganaisationByOrgId(user.orgId.toString());
+        setOrg(data.data.name);
+        setFeatures(response.data);
+      } catch (error) {
         console.log(error);
-
-        setMessage(
-          error?.response?.data
-            ?.message ||
-            "Something went wrong"
-        );
-      } finally {
-        setLoading(false);
       }
     };
+    fetchFeatures();
+  }, []);
+
+  const checkFeature = (feature: Feature) => {
+    setMessage(
+      `${feature.name} is ${feature.isEnable
+        ? "Enabled"
+        : "Disabled"
+      }`
+    );
+  };
+
+  const filteredFeatures = features.filter(
+    (feature) =>
+      feature.name
+        .toLowerCase()
+        .includes(search.toLowerCase())
+  );
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+
+      dispatch(clearUser());
+
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        {/* Header */}
-
-        <div className="mb-8 text-center">
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="mb-6 flex items-start justify-between">
+        <div>
           <h1 className="text-3xl font-bold">
-            Feature Checker
+            Welcome, {user?.name}
           </h1>
 
-          <p className="mt-2 text-gray-500">
-            Check whether a feature
-            is enabled for your
-            organization
+          <p className="mt-1 text-gray-500">
+            Organization: {organization}
           </p>
         </div>
 
-        {/* Input */}
+        <button
+          onClick={handleLogout}
+          className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+      <div className="mx-auto max-w-2xl rounded-2xl bg-white p-6 shadow-lg">
 
-        <div className="space-y-5">
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Feature Key
-            </label>
+        {/* Search */}
 
-            <input
-              type="text"
-              placeholder="Enter feature key"
-              value={featureKey}
-              onChange={(e) =>
-                setFeatureKey(
-                  e.target.value
-                )
-              }
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-            />
-          </div>
+        <input
+          type="text"
+          placeholder="Search feature..."
+          value={search}
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
+          className="mb-6 w-full rounded-xl border px-4 py-3 outline-none"
+        />
 
-          {/* Button */}
+        {/* Feature List */}
 
-          <button
-            onClick={
-              handleCheckFeature
-            }
-            disabled={loading}
-            className="w-full rounded-xl bg-black py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-          >
-            {loading
-              ? "Checking..."
-              : "Check Feature"}
-          </button>
-
-          {/* Result */}
-
-          {result !== null && (
+        <div className="space-y-4">
+          {filteredFeatures.map((feature) => (
             <div
-              className={`rounded-xl px-4 py-4 text-center font-semibold ${
-                result
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
+              key={feature._id}
+              className="flex items-center justify-between rounded-xl border p-4"
             >
-              {result
-                ? "Feature Enabled"
-                : "Feature Disabled"}
-            </div>
-          )}
+              <div>
+                <h2 className="font-semibold">
+                  {feature.name}
+                </h2>
 
-          {/* Error */}
-
-          {message &&
-            result === null && (
-              <div className="rounded-xl bg-red-100 px-4 py-4 text-center text-red-700">
-                {message}
+                <p className="text-sm text-gray-500">
+                  {feature.key}
+                </p>
               </div>
-            )}
+
+              <button
+                onClick={() =>
+                  checkFeature(feature)
+                }
+                className="rounded-lg bg-black px-4 py-2 text-white"
+              >
+                Check
+              </button>
+            </div>
+          ))}
         </div>
+
+        {/* Result */}
+
+        {message && (
+          <div className="mt-6 rounded-xl bg-gray-100 p-4 text-center font-medium">
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -70,4 +70,17 @@ export class FeatureService implements IFeatureService {
         }
     }
 
+    async findByOrgId(orgId: string): Promise<IFeature[]> {
+        try {
+            if (!orgId) {
+                throw new Error("orgId not found");
+            }
+            console.log("orgId :", orgId);
+            return await this.featureRepository.findByOrgId(orgId);
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            throw new Error(errMsg);
+        }
+    }
+
 }

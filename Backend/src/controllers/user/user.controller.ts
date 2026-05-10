@@ -11,6 +11,22 @@ export class UserController implements IUserController {
         this.userService = userService;
     }
 
+    findUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const { userId } = req.params;
+            if(!userId){
+                throw new Error('UserId Not found')
+            }
+            const user = await this.userService.findUser(userId as string);
+            if (!user) throw new Error("Faild to find all users");
+            const response = new SuccessResponse(StatusCode.OK, "Find all users successfully", user);
+            res.status(StatusCode.OK).json(response);
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            next(new ErrorResponse(StatusCode.INTERNAL_SERVER_ERROR, errMsg, "Faild to find all users"))
+        }
+    }
+
     findAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const users = await this.userService.findAll();

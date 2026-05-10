@@ -6,4 +6,5 @@ export interface IFeatureService {
     updateFeature(data: Partial<IFeature>): Promise<IFeature>;
     toggleFeature(id: string): Promise<IFeature>;
     findAll(): Promise<IFeature[]>;
+    findByOrgId(orgId: string): Promise<IFeature[]>;
 }

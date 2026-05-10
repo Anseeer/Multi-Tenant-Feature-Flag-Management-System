@@ -10,6 +10,7 @@ const userService = new UserService(userRepo);
 const userController = new UserController(userService);
 
 router.get('/', auth, userController.findAll);
+router.get('/:userId', auth, userController.findUser);
 router.get('/organaisation-user/:id', auth, userController.findOrganaisationUser);
 
 export default router;

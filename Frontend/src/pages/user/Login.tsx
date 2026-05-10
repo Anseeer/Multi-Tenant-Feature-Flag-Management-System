@@ -4,6 +4,8 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axiosInstance from "../../api/axios";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../slices/UserSlice";
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -18,11 +20,9 @@ const validationSchema = Yup.object({
 function UserLoginPage() {
   const navigate = useNavigate();
 
-  const [loading, setLoading] =
-    useState(false);
-
-  const [errorMessage, setErrorMessage] =
-    useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useDispatch();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
@@ -48,35 +48,27 @@ function UserLoginPage() {
           validationSchema={
             validationSchema
           }
-          onSubmit={async (
-            values,
-            { setSubmitting }
-          ) => {
+          onSubmit={async (values, { setSubmitting }) => {
             try {
               setLoading(true);
-
               setErrorMessage("");
 
               const response =
                 await axiosInstance.post(
-                  "/user/login",
+                  "/auth/user-login",
                   values
                 );
 
-              console.log(
-                response.data
-              );
+              dispatch(setUser(response.data.data));
+              navigate("/");
 
-              navigate(
-                "/user/feature-check"
-              );
             } catch (error: any) {
               console.log(error);
 
               setErrorMessage(
                 error?.response?.data
                   ?.message ||
-                  "Something went wrong"
+                "Something went wrong"
               );
             } finally {
               setLoading(false);

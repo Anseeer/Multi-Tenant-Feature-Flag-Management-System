@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import {
@@ -13,18 +14,21 @@ import { logout } from "../../api/auth.service";
 import { clearAdmin } from "../../slices/AdminSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { createUser, fetchUsers } from "../../api/user.service";
+import { createUser, fetchOrgUsers } from "../../api/user.service";
 
 interface Feature {
   _id: string;
   name: string;
   isEnable: boolean;
+  orgId: string;
 }
 
 interface User {
   _id: string;
   name: string;
   email: string;
+  role: string;
+  createdAt?: Date;
 }
 
 function AdminDashboardPage() {
@@ -44,16 +48,18 @@ function AdminDashboardPage() {
   const [userError, setUserError] = useState("");
   const [users, setUsers] = useState<User[]>([]);
 
+  console.log("Admin :", admin)
+
   useEffect(() => {
     const features = async () => {
       const data = await fetchFeatures()
-      const users = await fetchUsers(admin.orgId as string)
-      console.log("USer:", users);
+      const userData = await fetchOrgUsers(admin.orgId as string)
+      const users = userData.filter((user: User) => user.role == "user")
       setFeatures(data);
       setUsers(users)
     }
     features();
-  }, [isToggle, isEditted, isDelete])
+  }, [isToggle, isEditted, isDelete, isUserModalOpen])
 
   const handleToggleFeature = async (featureId: string) => {
     await toggleFeature(featureId);
@@ -78,11 +84,12 @@ function AdminDashboardPage() {
         )
       );
     } else {
-      const response = await createFeature({ name: featureName, createdAt: new Date() });
+      const response = await createFeature({ name: featureName, orgId: admin.orgId });
       const newFeature = {
         _id: response.data._id.toString(),
         name: response.data.name,
         isEnable: response.data.isEnable,
+        orgId: response.data.orgId,
       };
 
       setFeatures((prev) => [
@@ -141,6 +148,7 @@ function AdminDashboardPage() {
         _id: Date.now().toString(),
         name: userForm.name,
         email: userForm.email,
+        role: 'user',
       };
 
       setUsers((prev) => [newUser, ...prev]);
@@ -154,7 +162,6 @@ function AdminDashboardPage() {
   };
 
   // LOGOUT
-
   const handleLogout = async () => {
     try {
       await logout()
@@ -354,7 +361,7 @@ function AdminDashboardPage() {
                   </th>
 
                   <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
-                    Status
+                    CreatedAt
                   </th>
                 </tr>
               </thead>
@@ -376,7 +383,10 @@ function AdminDashboardPage() {
                     <td className="px-6 py-5">
                       <div className="flex justify-center">
                         <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                          Active
+                          {new Date(user?.createdAt as Date).toLocaleString("en-IN", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
                         </span>
                       </div>
                     </td>

@@ -3,6 +3,7 @@ import { StatusCode } from "../../constants/status.code.js";
 import type { IUser } from "../../models/user/Iuser.js";
 import type { IUserRepository } from "../../repositories/user/Iuser.repo.js";
 import { ComparePassword, HashPassword } from "../../utilities/bcrypt.js";
+import { mapUserResponse, type IUserResponse } from "../../utilities/DTO.mapping.js";
 import { SuccessResponse } from "../../utilities/response.js";
 import { generate_Access_Token, generate_Refresh_Token } from "../../utilities/token.generate.js";
 import type { IAuthService } from "./Iauth.service.js";
@@ -35,7 +36,7 @@ export class AuthServices implements IAuthService {
         }
     }
 
-    async adminSignup(credentials: Partial<IUser>): Promise<{ access_token: string, refresh_token: string, user: Partial<IUser> }> {
+    async adminSignup(credentials: Partial<IUser>): Promise<{ access_token: string, refresh_token: string, user: Partial<IUserResponse> }> {
         try {
             const { name, email, password, orgId } = credentials;
 
@@ -58,9 +59,40 @@ export class AuthServices implements IAuthService {
             }
 
             const data = await this.userRepository.create(payload);
+            const userData = mapUserResponse(data);
 
             const access_token = generate_Access_Token(data?._id.toString(), ROLE.ADMIN);
             const refresh_token = generate_Refresh_Token(data?._id.toString(), ROLE.ADMIN);
+            if (!refresh_token || !access_token) {
+                throw new Error("Token Not Found")
+            }
+            return { access_token, refresh_token, user: userData };
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            throw new Error(errMsg);
+        }
+    }
+
+    async adminLogin(credentials: Partial<IUser>): Promise<{ access_token: string, refresh_token: string, user: Partial<IUserResponse> }> {
+        try {
+            const { email, password } = credentials;
+
+            if (!email || !password) {
+                throw new Error("Credentials Not Found");
+            }
+
+            const isExisting: IUser | null = await this.userRepository.findByEmail(email as string);
+            if (!isExisting || isExisting.role != ROLE.ADMIN) {
+                throw new Error("Not Found user in this email");
+            }
+
+            if (!ComparePassword(password, isExisting?.password)) {
+                throw new Error("Invalid Password");
+            }
+
+            const data = mapUserResponse(isExisting)
+            const access_token = generate_Access_Token(isExisting?._id.toString(), ROLE.ADMIN);
+            const refresh_token = generate_Refresh_Token(isExisting?._id.toString(), ROLE.ADMIN);
             if (!refresh_token || !access_token) {
                 throw new Error("Token Not Found")
             }
@@ -71,36 +103,7 @@ export class AuthServices implements IAuthService {
         }
     }
 
-    async adminLogin(credentials: Partial<IUser>): Promise<{ access_token: string, refresh_token: string, user: Partial<IUser> }> {
-        try {
-            const { email, password } = credentials;
-
-            if (!email || !password) {
-                throw new Error("Credentials Not Found");
-            }
-
-            const isExisting: IUser | null = await this.userRepository.findByEmail(email as string);
-            if (!isExisting) {
-                throw new Error("Not Found user in this email");
-            }
-
-            if (!ComparePassword(password, isExisting?.password)) {
-                throw new Error("Invalid Password");
-            }
-
-            const access_token = generate_Access_Token(isExisting?._id.toString(), ROLE.ADMIN);
-            const refresh_token = generate_Refresh_Token(isExisting?._id.toString(), ROLE.ADMIN);
-            if (!refresh_token || !access_token) {
-                throw new Error("Token Not Found")
-            }
-            return { access_token, refresh_token, user: isExisting };
-        } catch (error) {
-            const errMsg = error instanceof Error ? error.message : String(error);
-            throw new Error(errMsg);
-        }
-    }
-
-    async userSignup(data: Partial<IUser>): Promise<{ user: Partial<IUser>; }> {
+    async userSignup(data: Partial<IUser>): Promise<{ user: Partial<IUserResponse>; }> {
         try {
             const { name, email, password, orgId } = data;
 
@@ -123,14 +126,16 @@ export class AuthServices implements IAuthService {
             }
 
             const user = await this.userRepository.create(payload);
-            return { user };
+            const userData = mapUserResponse(user);
+
+            return { user: userData };
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : String(error);
             throw new Error(errMsg);
         }
     }
 
-    async userLogin(credentials: Partial<IUser>): Promise<{ access_token: string; refresh_token: string; user: Partial<IUser>; }> {
+    async userLogin(credentials: Partial<IUser>): Promise<{ access_token: string; refresh_token: string; user: Partial<IUserResponse>; }> {
         try {
             const { email, password } = credentials;
 
@@ -139,7 +144,8 @@ export class AuthServices implements IAuthService {
             }
 
             const isExisting: IUser | null = await this.userRepository.findByEmail(email as string);
-            if (!isExisting) {
+            console.log("IsExisiting :", isExisting)
+            if (!isExisting || isExisting.role != ROLE.USER) {
                 throw new Error("Not Found user in this email");
             }
 
@@ -147,17 +153,17 @@ export class AuthServices implements IAuthService {
                 throw new Error("Invalid Password");
             }
 
+            const userData = mapUserResponse(isExisting);
             const access_token = generate_Access_Token(isExisting._id.toString(), ROLE.USER);
             const refresh_token = generate_Refresh_Token(isExisting._id.toString(), ROLE.USER);
             if (!refresh_token || !access_token) {
                 throw new Error("Token Not Found")
             }
-            return { access_token, refresh_token, user: isExisting };
+            return { access_token, refresh_token, user: userData };
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : String(error);
             throw new Error(errMsg);
         }
     }
-
 
 }

@@ -12,8 +12,8 @@ export class FeatureController implements IFeatureController {
 
     addFeature = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const { name } = req.body;
-            if (!name) {
+            const { name, orgId } = req.body;
+            if (!name || !orgId) {
                 throw new Error("Feature data not found");
             }
             const data = await this.featureService.addFeature(req.body);
@@ -81,6 +81,25 @@ export class FeatureController implements IFeatureController {
         try {
             const data = await this.featureService.findAll();
             const response = new SuccessResponse(StatusCode.OK, "find all", data);
+
+            res.status(StatusCode.OK).json(response);
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            next(new ErrorResponse(StatusCode.INTERNAL_SERVER_ERROR, errMsg, "Faild to findAll"));
+        }
+    }
+
+    findByOrgId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const { orgId } = req.params;
+
+            if (!orgId) {
+                throw new Error("OrgID Not found");
+            }
+
+            const data = await this.featureService.findByOrgId(orgId as string);
+
+            const response = new SuccessResponse(StatusCode.OK, "find org", data);
 
             res.status(StatusCode.OK).json(response);
         } catch (error) {

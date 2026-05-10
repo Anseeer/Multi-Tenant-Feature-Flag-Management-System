@@ -4,4 +4,5 @@ import type { IOrganaisation } from "../../models/organaisation/Iorganaisation.j
 export interface IOrganaisationController {
     create(req: Request, res: Response, next: NextFunction): Promise<void>;
     findAll(req: Request, res: Response, next: NextFunction): Promise<void>;
+    findById(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

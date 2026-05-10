@@ -41,4 +41,20 @@ export class OrganaisationController implements IOrganaisationController {
         }
     }
 
+    findById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const { orgId } = req.params;
+            if (!orgId) {
+                throw new Error("orgId Not Found")
+            }
+            const data = await this.organaisationService.findByOrgId(orgId as string);
+            const response = new SuccessResponse(StatusCode.OK, "FindAll Organaisation Successfully", data);
+
+            res.status(StatusCode.OK).json(response);
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            next(new ErrorResponse(StatusCode.BAD_REQUEST, errMsg, "Faild to findAll Organaisation"));
+        }
+    }
+
 }

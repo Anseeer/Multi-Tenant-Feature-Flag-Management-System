@@ -12,4 +12,6 @@ const orgController = new OrganaisationController(orgService);
 
 router.post('/', auth, authorize('super_admin'), orgController.create);
 router.get('/', auth, authorize('super_admin'), orgController.findAll);
+router.get('/orgId/:orgId', auth, authorize('user','admin'), orgController.findById);
+
 export default router;

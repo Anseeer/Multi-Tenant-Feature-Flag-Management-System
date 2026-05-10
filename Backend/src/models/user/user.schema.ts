@@ -4,7 +4,8 @@ import { ROLE } from "../../constants/role.js";
 
 const userSchema = new mongoose.Schema<IUser>({
     name:{
-        typ:String,
+        type:String,
+        required:true,
     },
     email: {
         type: String,

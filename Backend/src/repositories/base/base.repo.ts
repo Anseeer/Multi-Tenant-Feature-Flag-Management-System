@@ -20,7 +20,7 @@ export class BaseRepository<T extends Document> implements IWrite<T>, IRead<T> {
 
     async findByEmail(email: string): Promise<T | null> {
         try {
-            const res = await this.model.findOne({ email });
+            const res = await this.model.findOne({ email: { $regex: email, $options: "i" } });
             return res ?? null;
         } catch (error) {
             console.error('Error in findByEmail:', error);

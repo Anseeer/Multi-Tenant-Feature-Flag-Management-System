@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Feature } from "../../models/feature/feature.schema.js";
 import type { IFeature } from "../../models/feature/Ifeature.js";
 import { BaseRepository } from "../base/base.repo.js";
@@ -77,6 +78,15 @@ export class FeatureRepository extends BaseRepository<IFeature> implements IFeat
                 throw new Error("Feature not found");
             }
             return feature;
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            throw new Error(errMsg);
+        }
+    }
+
+    async findByOrgId(orgId: string): Promise<IFeature[]> {
+        try {
+            return await this.model.find({ orgId: orgId.toString() });
         } catch (error) {
             const errMsg = error instanceof Error ? error.message : String(error);
             throw new Error(errMsg);

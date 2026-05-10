@@ -9,6 +9,11 @@ const featureSchema = new mongoose.Schema<IFeature>({
     isEnable: {
         type: Boolean,
         default: true
+    },
+    orgId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Organaisation',
+        required: true
     }
 }, { timestamps: true });
 

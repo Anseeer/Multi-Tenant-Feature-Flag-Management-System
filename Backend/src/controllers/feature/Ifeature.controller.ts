@@ -6,4 +6,5 @@ export interface IFeatureController {
     updateFeature(req: Request, res: Response, next: NextFunction): Promise<void>;
     toggleFeature(req: Request, res: Response, next: NextFunction): Promise<void>;
     findAll(req: Request, res: Response, next: NextFunction): Promise<void>;
+    findByOrgId(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

@@ -17,6 +17,15 @@ export class UserService implements IUserService {
         }
     }
 
+    async findUser(userId: string): Promise<IUser | null> {
+        try {
+            if (!userId) throw new Error("UserId Not Found");
+            return await this.userRepository.findById(userId);
+        } catch (error) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            throw new Error(errMsg);
+        }
+    }
     async findOrganaisationUser(orgId: string): Promise<IUser[]> {
         try {
             if (!orgId) throw new Error("OrgId Not Found");
